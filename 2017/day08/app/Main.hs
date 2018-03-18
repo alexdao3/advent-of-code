@@ -17,6 +17,7 @@ data Instruction = Instruction {
                     condition :: Bool
                   } | NotInstruction deriving Show
 data Operator = GT | LT | GTE | LTE | EQ | NEQ
+data RegisterAndMax = RegisterAndMax (HM.HashMap String Int) Int
 
 lookUpValue :: String -> HM.HashMap String Int -> Int
 lookUpValue key map = fromMaybe 0 $ HM.lookup key map
@@ -43,22 +44,24 @@ createInstructions :: [[String]] -> [HM.HashMap String Int -> Instruction]
 createInstructions instructions =
   map splitLine instructions
 
-runInstruction :: (HM.HashMap String Int -> Instruction) -> HM.HashMap String Int -> HM.HashMap String Int
-runInstruction f hashMapRegister =
+runInstruction :: (HM.HashMap String Int -> Instruction) -> RegisterAndMax -> RegisterAndMax
+runInstruction f (RegisterAndMax hashMapRegister max) =
   case (f hashMapRegister) of
-    Instruction register Increase amount True -> updateRegister register amount hashMapRegister
-    Instruction register Decrease amount True -> updateRegister register (negate amount) hashMapRegister
-    _ -> hashMapRegister
+    Instruction register Increase amount True -> updateRegister register amount (RegisterAndMax hashMapRegister max)
+    Instruction register Decrease amount True -> updateRegister register (negate amount) (RegisterAndMax hashMapRegister max)
+    _ -> RegisterAndMax hashMapRegister max
 
-updateRegister :: String -> Int -> HM.HashMap String Int -> HM.HashMap String Int
-updateRegister key amount hashMapRegister =
+updateRegister :: String -> Int -> RegisterAndMax -> RegisterAndMax
+updateRegister key amount (RegisterAndMax hashMapRegister currMax) =
   case HM.lookup key hashMapRegister of
-    Nothing -> HM.insert key amount hashMapRegister
-    Just _  -> HM.adjust ((+) amount) key hashMapRegister
+    Nothing -> RegisterAndMax (HM.insert key amount hashMapRegister) (newMax currMax amount)
+    Just val  -> RegisterAndMax (HM.adjust ((+) amount) key hashMapRegister) (newMax currMax $ val + amount)
+  where
+    newMax prevMax newAmount = if prevMax > newAmount then prevMax else newAmount
 
-runInstructions :: [HM.HashMap String Int -> Instruction] -> HM.HashMap String Int
+runInstructions :: [HM.HashMap String Int -> Instruction] -> RegisterAndMax
 runInstructions thunks =
-  runInstructions' thunks HM.empty
+  runInstructions' thunks (RegisterAndMax HM.empty 0)
   where
     runInstructions' (f:[]) hashMapRegister = runInstruction f hashMapRegister
     runInstructions' (f:fs) hashMapRegister = runInstructions' fs (runInstruction f hashMapRegister)
@@ -67,6 +70,9 @@ getMaxRegister :: HM.HashMap String Int -> (String, Int)
 getMaxRegister hashMapRegister =
   maximumBy (\(_, val) (_, val') -> compare val val') $ HM.toList hashMapRegister
 
+getMaxAtAnyPoint :: RegisterAndMax -> Int
+getMaxAtAnyPoint (RegisterAndMax _ max) = max
+
 getInstr (Instruction _ _ amount _) = amount
 getInstr _ = 0
 
@@ -74,6 +80,6 @@ main :: IO ()
 main = do
   (fileName:args) <- getArgs
   file <- readFile fileName
-  let xs = getMaxRegister . runInstructions . createInstructions . map words . lines $ file
+  let xs = getMaxAtAnyPoint . runInstructions . createInstructions . map words . lines $ file
   print (show xs)
 
