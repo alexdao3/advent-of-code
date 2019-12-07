@@ -14,7 +14,7 @@ import Data.String (split, Pattern(Pattern))
 import Data.Traversable (traverseDefault)
 
 inputFile :: String
-inputFile = "src/input.txt"
+inputFile = "src/day01/input.txt"
 
 splitTextFileLines :: String -> Array String
 splitTextFileLines fileString = split (Pattern "\n") fileString
