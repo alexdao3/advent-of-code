@@ -19,22 +19,29 @@ inputFile = "src/input.txt"
 splitTextFileLines :: String -> Array String
 splitTextFileLines fileString = split (Pattern "\n") fileString
 
-applyAlgo :: Int -> Int
-applyAlgo num = num / 3 - 2
+algoPartOne :: Int -> Int
+algoPartOne num = num / 3 - 2
 
 convertToNums :: Array String -> Maybe (Array Int)
 convertToNums = traverseDefault fromString 
 
-getPartOneSum :: Array Int -> Int
-getPartOneSum = sum <<< map applyAlgo
+getPartOneSum :: (Int -> Int) -> Array Int -> Int
+getPartOneSum algo = sum <<< map algo
 
 backToStringBase10 :: Maybe Int -> Maybe String
 backToStringBase10 = map (toStringAs decimal) 
 
--- applyAlgoPartTwo :: (map <<< map )
+algoPartTwo :: Int -> Int
+algoPartTwo num = 
+  let fuelRequired = algoPartOne num 
+  in if fuelRequired < 0 then 0 else algoPartTwo fuelRequired + fuelRequired
+
+getSum :: (Array Int -> Int) -> Array Int -> Int
+getSum fn xs = fn xs
 
 main :: Effect Unit
 main =  
-  let something = backToStringBase10 <<< map getPartOneSum <<< convertToNums <<< splitTextFileLines <$> readTextFile UTF8 inputFile
-  in (log <<< show) =<< something
+  let algo = algoPartTwo
+      solution = backToStringBase10 <<< map (getPartOneSum algo) <<< convertToNums <<< splitTextFileLines <$> readTextFile UTF8 inputFile
+  in (log <<< show) =<< solution
   
