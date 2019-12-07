@@ -25,8 +25,8 @@ algoPartOne num = num / 3 - 2
 convertToNums :: Array String -> Maybe (Array Int)
 convertToNums = traverseDefault fromString 
 
-getPartOneSum :: (Int -> Int) -> Array Int -> Int
-getPartOneSum algo = sum <<< map algo
+applyAlgo :: (Int -> Int) -> Array Int -> Int
+applyAlgo algo = sum <<< map algo
 
 backToStringBase10 :: Maybe Int -> Maybe String
 backToStringBase10 = map (toStringAs decimal) 
@@ -42,6 +42,6 @@ getSum fn xs = fn xs
 main :: Effect Unit
 main =  
   let algo = algoPartTwo
-      solution = backToStringBase10 <<< map (getPartOneSum algo) <<< convertToNums <<< splitTextFileLines <$> readTextFile UTF8 inputFile
+      solution = backToStringBase10 <<< map (applyAlgo algo) <<< convertToNums <<< splitTextFileLines <$> readTextFile UTF8 inputFile
   in (log <<< show) =<< solution
   
