@@ -1,4 +1,4 @@
-module Main where
+module Day01 where
 
 import Prelude
 import Effect (Effect)
@@ -42,6 +42,6 @@ getSum fn xs = fn xs
 main :: Effect Unit
 main =  
   let algo = algoPartTwo
-      solution = backToStringBase10 <<< map (applyAlgo algo) <<< convertToNums <<< splitTextFileLines <$> readTextFile UTF8 inputFile
+      solution = map (applyAlgo algo) <<< convertToNums <<< splitTextFileLines <$> readTextFile UTF8 inputFile
   in (log <<< show) =<< solution
   
