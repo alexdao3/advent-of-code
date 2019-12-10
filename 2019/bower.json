@@ -10,7 +10,8 @@
     "purescript-prelude": "^4.1.1",
     "purescript-foldable-traversable": "^4.1.1",
     "purescript-strings": "^4.0.1",
-    "purescript-node-fs": "^5.0.1"
+    "purescript-node-fs": "^5.0.1",
+    "purescript-unordered-collections": "^1.8.2"
   },
   "devDependencies": {
     "purescript-psci-support": "^4.0.0"
