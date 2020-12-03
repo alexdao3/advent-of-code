@@ -10,8 +10,7 @@
                   [min-value max-value] (map read-string (str/split fst #"-"))
                   letter-count (count (filter #(= letter %) pw))]
               (<= min-value letter-count max-value)))]
-    (->> input
-         (filter check-valid-pw)
+    (->> (filter check-valid-pw input)
          count)))
 
 (defn part-2
@@ -23,8 +22,7 @@
                   pwd-indices (map (comp dec read-string) (str/split fst #"-"))
                   valid-positions (filter #(= letter (nth pw %)) pwd-indices)]
               (= 1 (count valid-positions))))]
-    (->> input
-         (filter check-valid-pw)
+    (->> (filter check-valid-pw input)
          count)))
 
 (comment
